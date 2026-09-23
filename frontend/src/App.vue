@@ -12,6 +12,7 @@
           <el-option value="fifo" label="FIFO"/><el-option value="priority" label="优先级"/><el-option value="max_concurrent" label="最大并发"/>
         </el-select>
         <el-button type="success" size="small" @click="run" :disabled="!store.workflow" :loading="store.loading">▶ 执行</el-button>
+        <el-button type="danger" size="small" @click="store.stop()">⏹ 停止</el-button>
         <span class="ws-dot" :class="{on:store.wsConnected}"></span>
       </div>
     </header>
@@ -22,6 +23,7 @@
       <div class="side-area">
         <LogPanel />
         <CircuitBreakerPanel />
+        <HealthPanel />
       </div>
     </div>
   </div>
@@ -32,6 +34,7 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import DAGCanvas from './components/DAGCanvas.vue'
 import LogPanel from './components/LogPanel.vue'
 import CircuitBreakerPanel from './components/CircuitBreakerPanel.vue'
+import HealthPanel from './components/HealthPanel.vue'
 import { useDAGStore } from './store/dag'
 const store = useDAGStore()
 const wfName = ref('data-pipeline')

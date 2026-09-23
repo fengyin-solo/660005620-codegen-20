@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import axios from 'axios'
-import type { DAGWorkflow, ExecutionInfo } from '@/types'
+import type { DAGWorkflow, ExecutionInfo, HealthScore, HealthConfig } from '@/types'
 export const useDAGStore = defineStore('dag', () => {
   const loading = ref(false)
   const workflow = ref<DAGWorkflow | null>(null)
@@ -9,6 +9,9 @@ export const useDAGStore = defineStore('dag', () => {
   const wsConnected = ref(false)
   const workers = ref(3)
   const strategy = ref('fifo')
+  const healthScores = ref<HealthScore[]>([])
+  const healthConfig = ref<HealthConfig | null>(null)
+  const healthLoading = ref(false)
 
   let ws: WebSocket|null = null
   function connectWS() {
@@ -33,6 +36,27 @@ export const useDAGStore = defineStore('dag', () => {
     finally { loading.value = false }
   }
 
+  async function stop() {
+    try { await axios.post('/api/stop') } catch {}
+  }
+
+  async function fetchHealth() {
+    try { const { data } = await axios.get('/api/health') ; healthScores.value = data.scores || [] ; healthConfig.value = data.config || null } catch {}
+  }
+
+  async function refreshHealth() {
+    healthLoading.value = true
+    try { await axios.post('/api/health/refresh') ; await fetchHealth() }
+    finally { healthLoading.value = false }
+  }
+
+  async function saveHealthConfig(cfg: Partial<HealthConfig>) {
+    const { data } = await axios.put('/api/health/config', cfg)
+    healthConfig.value = data
+  }
+
   function disconnectWS() { ws?.close(); ws = null }
-  return { loading, workflow, execution, wsConnected, workers, strategy, connectWS, createWorkflow, run, disconnectWS }
+  return { loading, workflow, execution, wsConnected, workers, strategy,
+           healthScores, healthConfig, healthLoading,
+           connectWS, createWorkflow, run, stop, fetchHealth, refreshHealth, saveHealthConfig, disconnectWS }
 })

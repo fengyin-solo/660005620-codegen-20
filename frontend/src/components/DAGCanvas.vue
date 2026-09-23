@@ -9,7 +9,7 @@ const store = useDAGStore()
 const cvs = ref<HTMLCanvasElement>()
 
 const STATUS_COLORS: Record<string, string> = {
-  PENDING: '#4a5568', RUNNING: '#3182ce', SUCCESS: '#38a169', FAILED: '#e53e3e', TIMEOUT: '#d69e2e'
+  PENDING: '#4a5568', RUNNING: '#3182ce', SUCCESS: '#38a169', FAILED: '#e53e3e', TIMEOUT: '#d69e2e', INTERRUPTED: '#a855f7'
 }
 
 function draw() {
